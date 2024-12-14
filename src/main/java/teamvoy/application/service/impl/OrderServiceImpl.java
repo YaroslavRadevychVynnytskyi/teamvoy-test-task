@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import teamvoy.application.dto.order.request.OrderItemDto;
 import teamvoy.application.dto.order.request.OrderRequestDto;
 import teamvoy.application.dto.order.response.OrderResponseDto;
@@ -41,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
      * @throws IllegalArgumentException if the requested quantity exceeds the available stock
      */
     @Override
+    @Transactional
     public OrderResponseDto placeOrder(OrderRequestDto requestDto) {
         List<UUID> laptopsIds = requestDto.orderItemsDtoSet().stream()
                 .map(OrderItemDto::laptopId)
@@ -77,6 +79,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Scheduled(cron = "0 * * * * *")
+    @Transactional
     public void deleteNotPaidOrders() {
         LocalDateTime currentTime = LocalDateTime.now();
         List<Order> unpaidOrders = orderRepository.findAllByOrderStatusAndTimestampBefore(OrderStatus.PENDING, currentTime.minusMinutes(10));
